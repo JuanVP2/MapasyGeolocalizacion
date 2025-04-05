@@ -236,50 +236,56 @@ fun HomeRouteScreen() {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(factory = { osmMapView }, modifier = Modifier.fillMaxSize())
-            Button(
-                onClick = { currentLocation?.let { osmMapView.controller.setCenter(it) } },
-                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Centrar en mi ubicación")
+                Button(
+                    onClick = { currentLocation?.let { osmMapView.controller.setCenter(it) } },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Centrar mi ubicación")
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(
+                    onClick = {
+                        removeRoute()
+                        tappedPoint.value?.let { newHome ->
+                            osmMapView.overlays.removeAll { overlay ->
+                                overlay is Marker && overlay.title == "Mi casa"
+                            }
+                            val casaDrawable = ContextCompat.getDrawable(context, R.drawable.casa)
+                            val casaBmp = (casaDrawable as BitmapDrawable).bitmap
+                            val casaIcon = BitmapDrawable(
+                                context.resources,
+                                Bitmap.createScaledBitmap(casaBmp, 20, 20, false)
+                            )
+                            saveHomeLocation(context, newHome)
+                            val casaMarker = Marker(osmMapView).apply {
+                                position = newHome
+                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                icon = casaIcon
+                                title = "Mi casa"
+                            }
+                            osmMapView.overlays.add(casaMarker)
+                            osmMapView.invalidate()
+
+                            currentLocation?.let { curr ->
+                                val startStr = "${curr.longitude},${curr.latitude}"
+                                val endStr = "${newHome.longitude},${newHome.latitude}"
+                                fetchRoute(startStr, endStr)
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cambiar a casa")
+                }
             }
-            Button(
-                onClick = {
-                    removeRoute()
-                    tappedPoint.value?.let { newHome ->
-                        // Eliminar el marcador de "Mi casa" anterior y cualquier "Marcador temporal"
-                        osmMapView.overlays.removeAll { overlay ->
-                            overlay is Marker && (
-                                    overlay.title == "Mi casa" || overlay.title == "Marcador temporal"
-                                    )
-                        }
-
-                        // Ahora creas el nuevo marcador de "Mi casa"
-                        val casaDrawable = ContextCompat.getDrawable(context, R.drawable.casa)
-                        val casaBmp = (casaDrawable as BitmapDrawable).bitmap
-                        val casaIcon = BitmapDrawable(context.resources, Bitmap.createScaledBitmap(casaBmp, 20, 20, false))
-                        saveHomeLocation(context, newHome)
-                        val casaMarker = Marker(osmMapView).apply {
-                            position = newHome
-                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                            icon = casaIcon
-                            title = "Mi casa"
-                        }
-                        osmMapView.overlays.add(casaMarker)
-                        osmMapView.invalidate()
-
-                        // Solicitar la ruta hacia la nueva ubicación de casa
-                        currentLocation?.let { curr ->
-                            val startStr = "${curr.longitude},${curr.latitude}"
-                            val endStr = "${newHome.longitude},${newHome.latitude}"
-                            fetchRoute(startStr, endStr)
-                        }
-                    }
-                },
-                modifier = Modifier.align(Alignment.BottomCenter).padding(70.dp)
-            ) {
-                Text("Establecer casa")
-            }
-
         }
     }
 }
