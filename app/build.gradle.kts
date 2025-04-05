@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.mapasygeolocalizacion"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.mapasygeolocalizacion"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -50,7 +50,7 @@ android {
 }
 
 dependencies {
-
+    // Dependencias de AndroidX y Compose
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,6 +59,20 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // OSMDroid para mapas
+    implementation("org.osmdroid:osmdroid-android:6.1.14")
+
+    // Retrofit y Gson para llamadas a la API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Accompanist Permissions para manejo de permisos en Compose
+    implementation("com.google.accompanist:accompanist-permissions:0.30.0")
+    implementation(libs.play.services.location)
+    implementation(libs.androidx.preference.ktx)
+
+    // Dependencias para testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
