@@ -1,10 +1,9 @@
-package com.example.deregresoacasa
+package com.example.mapasygeolocalizacion
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.Bundle
@@ -22,10 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.preference.PreferenceManager  // AndroidX PreferenceManager
-import com.example.mapasygeolocalizacion.ApiService
-import com.example.mapasygeolocalizacion.RouteResponse
-import com.example.mapasygeolocalizacion.R
+import androidx.preference.PreferenceManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -44,9 +40,11 @@ import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.views.overlay.Polyline
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.scale
 
 class MainActivity : ComponentActivity() {
-    private val LOCATION_REQUEST_CODE = 1001
+    private val LOCATIONREQUESTCODE = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +58,7 @@ class MainActivity : ComponentActivity() {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_REQUEST_CODE
+                LOCATIONREQUESTCODE
             )
         }
 
@@ -123,7 +121,7 @@ fun HomeRouteScreen() {
         routeOverlay?.let { map.overlays.remove(it) }
         val polyline = Polyline().apply {
             setPoints(coords.map { coord -> GeoPoint(coord[1], coord[0]) })
-            width = 5f
+            outlinePaint.strokeWidth = 5f
         }
         routeOverlay = polyline
         map.overlays.add(polyline)
@@ -174,7 +172,8 @@ fun HomeRouteScreen() {
                 // Configurar marcador para la ubicación actual
                 val currentDrawable = ContextCompat.getDrawable(context, R.drawable.ubicacion)
                 val currentBmp = (currentDrawable as BitmapDrawable).bitmap
-                val currentIcon = BitmapDrawable(context.resources, Bitmap.createScaledBitmap(currentBmp, 20, 20, false))
+                val currentIcon = currentBmp.scale(20, 20, false)
+                    .toDrawable(context.resources)
                 val currMarker = Marker(osmMapView).apply {
                     position = currentLocation
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
@@ -188,7 +187,8 @@ fun HomeRouteScreen() {
                 homeLocation?.let { point ->
                     val homeDrawable = ContextCompat.getDrawable(context, R.drawable.casa)
                     val homeBmp = (homeDrawable as BitmapDrawable).bitmap
-                    val homeIcon = BitmapDrawable(context.resources, Bitmap.createScaledBitmap(homeBmp, 20, 20, false))
+                    val homeIcon = homeBmp.scale(20, 20, false)
+                        .toDrawable(context.resources)
                     val homeMarker = Marker(osmMapView).apply {
                         position = point
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
@@ -260,10 +260,8 @@ fun HomeRouteScreen() {
                             }
                             val casaDrawable = ContextCompat.getDrawable(context, R.drawable.casa)
                             val casaBmp = (casaDrawable as BitmapDrawable).bitmap
-                            val casaIcon = BitmapDrawable(
-                                context.resources,
-                                Bitmap.createScaledBitmap(casaBmp, 20, 20, false)
-                            )
+                            val casaIcon = casaBmp.scale(20, 20, false)
+                                .toDrawable(context.resources)
                             saveHomeLocation(context, newHome)
                             val casaMarker = Marker(osmMapView).apply {
                                 position = newHome
