@@ -44,7 +44,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 
 class MainActivity : ComponentActivity() {
-    private val LOCATIONREQUESTCODE = 1001
+    private val locatioRequestCode = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATIONREQUESTCODE
+                locatioRequestCode
             )
         }
 
